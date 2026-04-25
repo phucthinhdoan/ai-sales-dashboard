@@ -5,7 +5,7 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def generate_insight(df):
 
-    data_sample = df.head(20).to_string()
+    data_sample = df.head(15).to_string()
 
     prompt = f"""
 You are a senior business analyst.
@@ -24,7 +24,7 @@ Keep it short and professional.
 """
 
     response = client.chat.completions.create(
-        model="llama3-70b-8192",
+        model="llama3-8b-8192",
         messages=[
             {"role": "user", "content": prompt}
         ]
