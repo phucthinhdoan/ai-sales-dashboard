@@ -4,50 +4,58 @@ import plotly.express as px
 import os
 
 # =====================
-# IMPORT AI (Xử lý an toàn)
+# IMPORT AI (Safe handling)
 # =====================
 try:
     from src.ai import generate_insight
 except ImportError:
-    # Nếu file src/ai.py bị lỗi hoặc chưa có, tạo hàm tạm để app không bị crash
+    # Fallback function if src/ai.py is missing or throws an error
     def generate_insight(df):
-        return "⚠️ Chưa cấu hình xong module AI (src/ai.py)."
+        return "⚠️ AI module in src/ai.py is not properly configured."
 
 # =====================
-# CONFIG
+# PAGE CONFIGURATION
 # =====================
 st.set_page_config(page_title="AI Sales Dashboard", layout="wide")
 st.title("🚀 AI Sales Intelligence Dashboard")
 
 # =====================
-# LOAD DATA SAFE
+# FILE PATH (Updated based on your GitHub structure)
 # =====================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# Đã sửa lại đường dẫn trỏ thẳng ra file ở thư mục gốc
 DATA_PATH = os.path.join(BASE_DIR, "sales.csv") 
 
-@st.cache_data # Thêm cache giúp app load dữ liệu nhanh hơn, không bị giật lag
+@st.cache_data 
 def load_data():
     if not os.path.exists(DATA_PATH):
-        st.error("❌ Missing sales.csv")
+        st.error(f"❌ File not found: {DATA_PATH}")
         return pd.DataFrame()
 
+    # Read data
     df = pd.read_csv(DATA_PATH)
     
-    # 1. Chuẩn hóa tên cột: Xóa khoảng trắng và đưa về chữ thường (để code luôn tìm được cột "sales", "profit")
+    # 1. Normalize: Strip whitespace and convert to lowercase
     df.columns = df.columns.str.strip().str.lower() 
     
-    # 2. Xử lý dữ liệu cột Sales: Xóa dấu $, dấu phẩy và ép về dạng số
-    if "sales" in df.columns:
-        if df['sales'].dtype == 'object':
-            df['sales'] = df['sales'].astype(str).str.replace(r'[\$,]', '', regex=True)
-        df['sales'] = pd.to_numeric(df['sales'], errors='coerce').fillna(0)
-        
-    # 3. Xử lý dữ liệu cột Profit
-    if "profit" in df.columns:
-        if df['profit'].dtype == 'object':
-            df['profit'] = df['profit'].astype(str).str.replace(r'[\$,]', '', regex=True)
-        df['profit'] = pd.to_numeric(df['profit'], errors='coerce').fillna(0)
+    # 2. RENAME COLUMNS (Crucial - based on your actual data structure)
+    # Map actual column names from your CSV to the names used in the dashboard code
+    mapping = {
+        "order date": "date",
+        "total revenue": "sales",
+        "total profit": "profit"
+    }
+    df.rename(columns=mapping, inplace=True)
+    
+    # 3. Process date format
+    if "date" in df.columns:
+        df["date"] = pd.to_datetime(df["date"], errors='coerce')
+    
+    # 4. Convert Sales and Profit to numeric (remove special characters if any)
+    for col in ["sales", "profit"]:
+        if col in df.columns:
+            if df[col].dtype == 'object':
+                df[col] = df[col].astype(str).str.replace(r'[^\d.]', '', regex=True)
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
         
     return df
 
@@ -57,69 +65,78 @@ df = load_data()
 # DEBUG DATA
 # =====================
 st.subheader("📦 RAW DATA")
-st.dataframe(df)
+st.dataframe(df.head(20)) # Show first 20 rows
 
 if df.empty:
-    st.warning("⚠️ No data loaded")
+    st.warning("⚠️ Data is empty or sales.csv not found")
     st.stop()
 
 # =====================
-# FILTER
+# SIDEBAR FILTERS
 # =====================
 st.sidebar.title("⚙️ Filters")
 
 filtered_df = df.copy()
 
+# Filter by Region
 if "region" in df.columns:
-    region = st.sidebar.selectbox("Region", ["All"] + list(df["region"].dropna().unique()))
-    if region != "All":
-        filtered_df = filtered_df[filtered_df["region"] == region]
+    regions = ["All"] + sorted(list(df["region"].dropna().unique()))
+    selected_region = st.sidebar.selectbox("Select Region", regions)
+    if selected_region != "All":
+        filtered_df = filtered_df[filtered_df["region"] == selected_region]
 
-if "product" in df.columns:
-    product = st.sidebar.selectbox("Product", ["All"] + list(df["product"].dropna().unique()))
-    if product != "All":
-        filtered_df = filtered_df[filtered_df["product"] == product]
+# Filter by Item Type
+item_col = "item type" if "item type" in df.columns else "product"
+if item_col in df.columns:
+    items = ["All"] + sorted(list(df[item_col].dropna().unique()))
+    selected_item = st.sidebar.selectbox("Select Product", items)
+    if selected_item != "All":
+        filtered_df = filtered_df[filtered_df[item_col] == selected_item]
 
 # =====================
-# KPI
+# DISPLAY KPI
 # =====================
-st.subheader("📊 KPI")
+st.subheader("📊 Key Metrics (KPI)")
 
 col1, col2, col3 = st.columns(3)
 
-# Kiểm tra đúng cú pháp in df.columns thay vì in df
-sales = filtered_df["sales"].sum() if "sales" in filtered_df.columns else 0
-profit = filtered_df["profit"].sum() if "profit" in filtered_df.columns else 0
-orders = len(filtered_df)
+# Calculate metrics
+total_sales = filtered_df["sales"].sum() if "sales" in filtered_df.columns else 0
+total_profit = filtered_df["profit"].sum() if "profit" in filtered_df.columns else 0
+total_orders = len(filtered_df)
 
-col1.metric("💰 Sales", f"${sales:,.0f}")
-col2.metric("📈 Profit", f"${profit:,.0f}")
-col3.metric("🧾 Orders", orders)
+col1.metric("💰 Total Sales", f"${total_sales:,.2f}")
+col2.metric("📈 Total Profit", f"${total_profit:,.2f}")
+col3.metric("🧾 Total Orders", f"{total_orders:,}")
 
 # =====================
-# CHART
+# SALES TREND CHART
 # =====================
 st.subheader("📈 Sales Trend")
 
 if "date" in filtered_df.columns and "sales" in filtered_df.columns:
-    # Gom nhóm theo ngày để vẽ biểu đồ
-    chart = filtered_df.groupby("date")["sales"].sum().reset_index()
+    # Group by date for plotting
+    trend_data = filtered_df.groupby("date")["sales"].sum().reset_index().sort_values("date")
 
-    if not chart.empty:
-        fig = px.line(chart, x="date", y="sales", markers=True)
+    if not trend_data.empty:
+        fig = px.line(trend_data, x="date", y="sales", 
+                     title="Sales Over Time",
+                     markers=True,
+                     line_shape="linear")
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.warning("No chart data")
+        st.info("No time data available to draw the chart.")
 else:
-    st.warning("Missing 'date' or 'sales' column")
+    st.error("Warning: Missing 'order date' or 'total revenue' columns for the trend chart.")
 
 # =====================
 # AI INSIGHT
 # =====================
 st.subheader("🤖 AI Insight")
 
-if st.button("Generate Insight"):
-    with st.spinner("AI analyzing..."):
+if st.button("Generate AI Insight"):
+    with st.spinner("AI is analyzing data..."):
+        # Send filtered data to AI
         result = generate_insight(filtered_df)
         st.success("Done")
-        st.write(result)
+        st.markdown(f"--- \n {result}")
