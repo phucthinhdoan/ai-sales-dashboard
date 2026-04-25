@@ -5,7 +5,11 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def generate_insight(df):
 
-    data_sample = df.head(15).to_string()
+    # 🔥 LIMIT DATA (QUAN TRỌNG)
+    df_clean = df.fillna("null")
+
+    # chỉ lấy 10 dòng + 5 cột đầu tiên để tránh token overflow
+    data_sample = df_clean.iloc[:10, :5].to_string()
 
     prompt = f"""
 You are a senior business analyst.
@@ -14,20 +18,26 @@ Analyze this dataset:
 
 {data_sample}
 
-Provide:
-- Key insights
-- Problems
-- Opportunities
-- Action plan
+Return:
+1. Key insights
+2. Problems
+3. Opportunities
+4. Action plan
 
-Keep it short and professional.
+Be concise and professional.
 """
 
-    response = client.chat.completions.create(
-        model="llama3-8b-8192",
-        messages=[
-            {"role": "user", "content": prompt}
-        ]
-    )
+    try:
+        response = client.chat.completions.create(
+            model="llama3-70b-8192",  # 🔥 đổi lại model ổn định hơn
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.5,
+            max_tokens=500
+        )
 
-    return response.choices[0].message.content
+        return response.choices[0].message.content
+
+    except Exception as e:
+        return f"AI Error: {str(e)}"
