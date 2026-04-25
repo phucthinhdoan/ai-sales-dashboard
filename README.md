@@ -126,6 +126,6 @@ This project simulates a real-world AI analytics product:
 - 📊 Helps managers make faster decisions
 - 🧠 Converts raw data into actionable insight
 - 🚀 Prototype for SaaS AI dashboard systems
-**👨‍💻 Author**
+### 👨‍💻 Author
 GitHub: https://github.com/phucthinhdoan
 Project: AI Sales Analyst
