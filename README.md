@@ -70,14 +70,14 @@ User → Streamlit UI → Data Processing (Pandas)
 ---
 
 ## 📁 Project Structure
-ai-sales-dashboard/
-│
-├── app.py # Main application
-├── requirements.txt # Dependencies
-├── data/ # Dataset files
-├── utils/ # Helper functions
-├── assets/ # Images / UI assets
-└── README.md
+ - ai-sales-dashboard/
+- │
+- ├── app.py # Main application
+- ├── requirements.txt # Dependencies
+- ├── data/ # Dataset files
+- ├── utils/ # Helper functions
+- ├── assets/ # Images / UI assets
+- └── README.md
 ---
 
 ## ⚙️ Installation
