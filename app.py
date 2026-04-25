@@ -15,7 +15,7 @@ st.title("🚀 AI Sales Intelligence Dashboard")
 # LOAD DATA SAFE
 # =====================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_PATH = os.path.join(BASE_DIR, "data", "sales.csv")
+DATA_PATH = os.path.join(BASE_DIR, "sales.csv")
 
 def load_data():
     if not os.path.exists(DATA_PATH):
