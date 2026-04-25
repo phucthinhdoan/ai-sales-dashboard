@@ -1,25 +1,24 @@
-from groq import Groq
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
+from groq import Groq
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def generate_insight(df):
     prompt = f"""
-    Analyze this sales data:
+    You are a senior business analyst.
 
-    {df.head().to_string()}
+    Analyze this dataset and give:
+    - Key trends
+    - Problems
+    - Opportunities
+    - Action plan
 
-    Give:
-    - key trends
-    - risks
-    - opportunities
+    Data sample:
+    {df.head(10).to_string()}
     """
 
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="llama-3.1-70b-versatile",
         messages=[
             {"role": "user", "content": prompt}
         ]
