@@ -90,7 +90,7 @@ cd ai-sales-dashboard
 **### 2. Install dependencies**
 pip install -r requirements.txt
 
-**### 3. Run locally**
+### 3. Run  Locally
 streamlit run app.py
 ---
 
