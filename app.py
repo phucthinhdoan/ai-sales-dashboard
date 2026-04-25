@@ -4,45 +4,43 @@ import plotly.express as px
 import os
 from src.ai import generate_insight
 
-# ======================
+# =====================
 # CONFIG
-# ======================
+# =====================
 st.set_page_config(page_title="AI Sales Dashboard", layout="wide")
 
 st.title("🚀 AI Sales Intelligence Dashboard")
 
-# ======================
-# LOAD DATA (FIXED 100%)
-# ======================
+# =====================
+# LOAD DATA SAFE
+# =====================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(BASE_DIR, "data", "sales.csv")
 
 def load_data():
     if not os.path.exists(DATA_PATH):
-        st.error("❌ sales.csv NOT FOUND in /data folder")
+        st.error("❌ Missing data/sales.csv")
         return pd.DataFrame()
 
     df = pd.read_csv(DATA_PATH)
-
-    # CLEAN DATA (IMPORTANT)
-    df.columns = [c.strip() for c in df.columns]
+    df.columns = df.columns.str.strip()
     return df
 
 df = load_data()
 
-# ======================
-# DEBUG (BẮT BUỘC ĐỂ THẤY DATA)
-# ======================
+# =====================
+# DEBUG DATA (QUAN TRỌNG)
+# =====================
 st.subheader("📦 RAW DATA")
 st.dataframe(df)
 
 if df.empty:
-    st.warning("⚠️ Dataset is empty → check sales.csv")
+    st.warning("⚠️ No data loaded")
     st.stop()
 
-# ======================
-# FILTER SIDEBAR
-# ======================
+# =====================
+# FILTER
+# =====================
 st.sidebar.title("⚙️ Filters")
 
 filtered_df = df.copy()
@@ -57,9 +55,9 @@ if "product" in df.columns:
     if product != "All":
         filtered_df = filtered_df[filtered_df["product"] == product]
 
-# ======================
-# DEBUG FILTERED DATA
-# ======================
+# =====================
+# DEBUG FILTERED
+# =====================
 st.subheader("📊 FILTERED DATA")
 st.dataframe(filtered_df)
 
@@ -67,9 +65,9 @@ if filtered_df.empty:
     st.warning("⚠️ No data after filter")
     st.stop()
 
-# ======================
+# =====================
 # KPI
-# ======================
+# =====================
 st.subheader("📊 KPI")
 
 col1, col2, col3 = st.columns(3)
@@ -82,9 +80,9 @@ col1.metric("💰 Sales", f"{sales:,.0f}")
 col2.metric("📈 Profit", f"{profit:,.0f}")
 col3.metric("🧾 Orders", orders)
 
-# ======================
-# CHART (SAFE)
-# ======================
+# =====================
+# CHART
+# =====================
 st.subheader("📈 Sales Trend")
 
 if "date" in filtered_df.columns and "sales" in filtered_df.columns:
@@ -96,19 +94,16 @@ if "date" in filtered_df.columns and "sales" in filtered_df.columns:
     else:
         st.warning("No chart data")
 else:
-    st.warning("Missing columns: date or sales")
+    st.warning("Missing date or sales column")
 
-# ======================
-# AI INSIGHT (SAFE)
-# ======================
+# =====================
+# AI INSIGHT
+# =====================
 st.subheader("🤖 AI Insight")
 
 if st.button("Generate Insight"):
 
-    if len(filtered_df) == 0:
-        st.error("No data for AI")
-    else:
-        with st.spinner("AI analyzing..."):
-            result = generate_insight(filtered_df)
-            st.success("Done")
-            st.write(result)
+    with st.spinner("AI analyzing..."):
+        result = generate_insight(filtered_df)
+        st.success("Done")
+        st.write(result)
