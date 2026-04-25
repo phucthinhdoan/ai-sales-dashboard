@@ -63,3 +63,42 @@ This turns a simple dashboard into a **decision-making assistant**.
 ---
 
 ## 🧩 Architecture
+User → Streamlit UI → Data Processing (Pandas)
+→ AI Engine (OpenAI / Groq)
+→ Visualization Layer (Plotly)
+→ Insights Output
+---
+
+## 📁 Project Structure
+ai-sales-dashboard/
+│
+├── app.py # Main application
+├── requirements.txt # Dependencies
+├── data/ # Dataset files
+├── utils/ # Helper functions
+├── assets/ # Images / UI assets
+└── README.md
+---
+
+## ⚙️ Installation
+
+### 1. Clone repository
+```bash
+git clone https://github.com/phucthinhdoan/ai-sales-dashboard.git
+cd ai-sales-dashboard
+
+### 2. Install dependencies
+pip install -r requirements.txt
+
+### 3. Run locally
+streamlit run app.py
+---
+
+### 💡 Business Value
+
+This project simulates a real-world AI analytics product:
+
+Reduces manual data analysis time
+Helps managers make faster decisions
+Converts raw data → strategic insights
+Works as a prototype for SaaS AI dashboard products
