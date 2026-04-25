@@ -85,7 +85,7 @@ User → Streamlit UI → Data Processing (Pandas)
 ### 1. Clone repository
 ```bash
 git clone https://github.com/phucthinhdoan/ai-sales-dashboard.git
-cd ai-sales-dashboard
+cd ai-sales-dashboard```
 
 2. Install dependencies
 pip install -r requirements.txt
