@@ -10,7 +10,7 @@ Built with **Streamlit + AI (OpenAI / Groq)** to help businesses understand perf
 ---
 
 ## 🌐 Live Demo
-👉 https://your-app.streamlit.app
+👉 https://ai-sales-dashboard.streamlit.app/
 
 ---
 
