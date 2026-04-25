@@ -2,34 +2,59 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import os
-from src.ai import generate_insight
+
+# =====================
+# IMPORT AI (Xử lý an toàn)
+# =====================
+try:
+    from src.ai import generate_insight
+except ImportError:
+    # Nếu file src/ai.py bị lỗi hoặc chưa có, tạo hàm tạm để app không bị crash
+    def generate_insight(df):
+        return "⚠️ Chưa cấu hình xong module AI (src/ai.py)."
 
 # =====================
 # CONFIG
 # =====================
 st.set_page_config(page_title="AI Sales Dashboard", layout="wide")
-
 st.title("🚀 AI Sales Intelligence Dashboard")
 
 # =====================
 # LOAD DATA SAFE
 # =====================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_PATH = os.path.join(BASE_DIR, "sales.csv")
+# Đã sửa lại đường dẫn trỏ thẳng ra file ở thư mục gốc
+DATA_PATH = os.path.join(BASE_DIR, "sales.csv") 
 
+@st.cache_data # Thêm cache giúp app load dữ liệu nhanh hơn, không bị giật lag
 def load_data():
     if not os.path.exists(DATA_PATH):
-        st.error("❌ Missing data/sales.csv")
+        st.error("❌ Missing sales.csv")
         return pd.DataFrame()
 
     df = pd.read_csv(DATA_PATH)
-    df.columns = df.columns.str.strip()
+    
+    # 1. Chuẩn hóa tên cột: Xóa khoảng trắng và đưa về chữ thường (để code luôn tìm được cột "sales", "profit")
+    df.columns = df.columns.str.strip().str.lower() 
+    
+    # 2. Xử lý dữ liệu cột Sales: Xóa dấu $, dấu phẩy và ép về dạng số
+    if "sales" in df.columns:
+        if df['sales'].dtype == 'object':
+            df['sales'] = df['sales'].astype(str).str.replace(r'[\$,]', '', regex=True)
+        df['sales'] = pd.to_numeric(df['sales'], errors='coerce').fillna(0)
+        
+    # 3. Xử lý dữ liệu cột Profit
+    if "profit" in df.columns:
+        if df['profit'].dtype == 'object':
+            df['profit'] = df['profit'].astype(str).str.replace(r'[\$,]', '', regex=True)
+        df['profit'] = pd.to_numeric(df['profit'], errors='coerce').fillna(0)
+        
     return df
 
 df = load_data()
 
 # =====================
-# DEBUG DATA (QUAN TRỌNG)
+# DEBUG DATA
 # =====================
 st.subheader("📦 RAW DATA")
 st.dataframe(df)
@@ -56,28 +81,19 @@ if "product" in df.columns:
         filtered_df = filtered_df[filtered_df["product"] == product]
 
 # =====================
-# DEBUG FILTERED
-# =====================
-st.subheader("📊 FILTERED DATA")
-st.dataframe(filtered_df)
-
-if filtered_df.empty:
-    st.warning("⚠️ No data after filter")
-    st.stop()
-
-# =====================
 # KPI
 # =====================
 st.subheader("📊 KPI")
 
 col1, col2, col3 = st.columns(3)
 
-sales = filtered_df["sales"].sum() if "sales" in filtered_df else 0
-profit = filtered_df["profit"].sum() if "profit" in filtered_df else 0
+# Kiểm tra đúng cú pháp in df.columns thay vì in df
+sales = filtered_df["sales"].sum() if "sales" in filtered_df.columns else 0
+profit = filtered_df["profit"].sum() if "profit" in filtered_df.columns else 0
 orders = len(filtered_df)
 
-col1.metric("💰 Sales", f"{sales:,.0f}")
-col2.metric("📈 Profit", f"{profit:,.0f}")
+col1.metric("💰 Sales", f"${sales:,.0f}")
+col2.metric("📈 Profit", f"${profit:,.0f}")
 col3.metric("🧾 Orders", orders)
 
 # =====================
@@ -86,6 +102,7 @@ col3.metric("🧾 Orders", orders)
 st.subheader("📈 Sales Trend")
 
 if "date" in filtered_df.columns and "sales" in filtered_df.columns:
+    # Gom nhóm theo ngày để vẽ biểu đồ
     chart = filtered_df.groupby("date")["sales"].sum().reset_index()
 
     if not chart.empty:
@@ -94,7 +111,7 @@ if "date" in filtered_df.columns and "sales" in filtered_df.columns:
     else:
         st.warning("No chart data")
 else:
-    st.warning("Missing date or sales column")
+    st.warning("Missing 'date' or 'sales' column")
 
 # =====================
 # AI INSIGHT
@@ -102,7 +119,6 @@ else:
 st.subheader("🤖 AI Insight")
 
 if st.button("Generate Insight"):
-
     with st.spinner("AI analyzing..."):
         result = generate_insight(filtered_df)
         st.success("Done")
