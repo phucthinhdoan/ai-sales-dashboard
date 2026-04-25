@@ -91,23 +91,30 @@ cd ai-sales-dashboard
 pip install -r requirements.txt
 3. Run locally
 streamlit run app.py
-🔑 Environment Variables
+
+---
+
+
+### 🔑 Environment Variables
 
 Create a .env file:
 
 OPENAI_API_KEY=your_key_here
 GROQ_API_KEY=your_key_here
-🚀 Deployment
+
+---
+
+###🚀 Deployment
 Deploy on Streamlit Cloud
 Push code to GitHub
 Go to https://share.streamlit.io/
 
 Select repository:
-
 phucthinhdoan/ai-sales-dashboard
 Main file: app.py
 Click Deploy
-💡 Business Value
+---
+### 💡 Business Value
 
 This project simulates a real-world AI analytics product:
 
