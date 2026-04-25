@@ -88,11 +88,14 @@ git clone https://github.com/phucthinhdoan/ai-sales-dashboard.git
 cd ai-sales-dashboard
 ```
 
-2. Install dependencies
+**2. Install dependencies**
+```bash
 pip install -r requirements.txt
-3. Run locally
+```
+**3. Run locally**
+```bash
 streamlit run app.py
-
+```
 ---
 
 
