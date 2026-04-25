@@ -1,44 +1,40 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import os
 from src.ai import generate_insight
 
-# -----------------------
-# PAGE CONFIG
-# -----------------------
+# ---------------- PAGE CONFIG ----------------
 st.set_page_config(
-    page_title="AI Sales Intelligence",
+    page_title="AI Sales Dashboard",
     page_icon="📊",
     layout="wide"
 )
 
-# -----------------------
-# HERO SECTION (SAAS STYLE)
-# -----------------------
+# ---------------- HEADER ----------------
 st.markdown("""
 # 🚀 AI Sales Intelligence Platform
-### Turn raw data into business decisions in seconds
+### Turn raw data into business decisions using AI
 """)
 
 col1, col2, col3 = st.columns(3)
-col1.metric("⚡ System", "Live")
-col2.metric("🧠 AI Engine", "Active")
-col3.metric("📊 Mode", "SaaS Dashboard")
+col1.metric("⚡ Status", "Live")
+col2.metric("🧠 AI Engine", "Groq")
+col3.metric("📊 Mode", "SaaS")
 
 st.divider()
 
-# -----------------------
-# LOAD DATA
-# -----------------------
+# ---------------- SAFE DATA LOAD ----------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_PATH = os.path.join(BASE_DIR, "data", "sales.csv")
+
 @st.cache_data
 def load_data():
-    return pd.read_csv("sales.csv")
+    return pd.read_csv(DATA_PATH)
 
 df = load_data()
 
-# -----------------------
-# SIDEBAR (CONTROL PANEL)
-# -----------------------
+# ---------------- SIDEBAR ----------------
 st.sidebar.title("⚙️ Control Panel")
 
 mode = st.sidebar.radio("Mode", ["📊 Dashboard", "🤖 AI Analyst"])
@@ -52,7 +48,6 @@ if "region" in df.columns:
 if "product" in df.columns:
     product = st.sidebar.selectbox("Product", ["All"] + list(df["product"].unique()))
 
-# FILTER DATA
 filtered_df = df.copy()
 
 if region != "All":
@@ -61,9 +56,7 @@ if region != "All":
 if product != "All":
     filtered_df = filtered_df[filtered_df["product"] == product]
 
-# -----------------------
-# MODE 1: DASHBOARD
-# -----------------------
+# ---------------- DASHBOARD MODE ----------------
 if mode == "📊 Dashboard":
 
     st.subheader("📊 Key Metrics")
@@ -73,18 +66,18 @@ if mode == "📊 Dashboard":
     sales = filtered_df["sales"].sum() if "sales" in df.columns else 0
     profit = filtered_df["profit"].sum() if "profit" in df.columns else 0
     orders = len(filtered_df)
-    avg_order = sales / orders if orders else 0
+    avg = sales / orders if orders else 0
 
     col1.metric("💰 Revenue", f"{sales:,.0f}")
     col2.metric("📈 Profit", f"{profit:,.0f}")
     col3.metric("🧾 Orders", orders)
-    col4.metric("🏆 Avg Order", f"{avg_order:,.0f}")
+    col4.metric("🏆 Avg Order", f"{avg:,.0f}")
 
     st.divider()
 
-    col1, col2 = st.columns([2, 1])
+    c1, c2 = st.columns([2, 1])
 
-    with col1:
+    with c1:
         st.subheader("📈 Sales Trend")
 
         if "date" in df.columns:
@@ -92,7 +85,7 @@ if mode == "📊 Dashboard":
             fig = px.line(chart, x="date", y="sales", markers=True)
             st.plotly_chart(fig, use_container_width=True)
 
-    with col2:
+    with c2:
         st.subheader("🏷 Top Products")
 
         if "product" in df.columns:
@@ -105,28 +98,26 @@ if mode == "📊 Dashboard":
     st.subheader("🤖 AI Insight")
 
     if st.button("Generate Insight"):
-        with st.spinner("Analyzing business data..."):
-            insight = generate_insight(filtered_df)
-            st.success("Analysis Complete")
-            st.write(insight)
+        with st.spinner("Analyzing..."):
+            result = generate_insight(filtered_df)
+            st.success("Done")
+            st.write(result)
 
-# -----------------------
-# MODE 2: AI ANALYST CHAT
-# -----------------------
+# ---------------- AI ANALYST MODE ----------------
 elif mode == "🤖 AI Analyst":
 
-    st.subheader("🤖 AI Business Analyst")
+    st.subheader("💬 AI Business Analyst")
 
     if "chat" not in st.session_state:
         st.session_state.chat = []
 
-    user_input = st.text_input("Ask your business question...")
+    user_input = st.text_input("Ask anything about your data...")
 
     if user_input:
-        with st.spinner("Thinking like a senior analyst..."):
-            response = generate_insight(filtered_df)
+        with st.spinner("Thinking..."):
+            answer = generate_insight(filtered_df)
             st.session_state.chat.append(("You", user_input))
-            st.session_state.chat.append(("AI", response))
+            st.session_state.chat.append(("AI", answer))
 
     for role, msg in st.session_state.chat:
         if role == "You":
