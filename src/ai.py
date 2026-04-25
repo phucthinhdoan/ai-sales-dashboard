@@ -7,6 +7,7 @@ def generate_insight(df):
 
     df_clean = df.fillna("null")
 
+    # limit để tránh lỗi API
     data_sample = df_clean.iloc[:10, :5].to_string()
 
     prompt = f"""
@@ -16,7 +17,7 @@ Analyze this dataset:
 
 {data_sample}
 
-Give:
+Provide:
 - Key insights
 - Problems
 - Opportunities
@@ -27,7 +28,7 @@ Be concise and professional.
 
     try:
         response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",  # ✅ MODEL MỚI
+            model="llama-3.1-8b-instant",
             messages=[
                 {"role": "user", "content": prompt}
             ],
