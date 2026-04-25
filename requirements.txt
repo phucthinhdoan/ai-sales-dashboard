@@ -4,5 +4,6 @@ pandas
 numpy
 plotly
 matplotlib
+python-dotenv
 uv==0.11.7
 
