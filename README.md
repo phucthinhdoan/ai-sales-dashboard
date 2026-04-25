@@ -122,10 +122,10 @@ Click Deploy
 
 This project simulates a real-world AI analytics product:
 
-📉 Reduces manual data analysis time
-📊 Helps managers make faster decisions
-🧠 Converts raw data into actionable insights
-🚀 Prototype for SaaS AI dashboard systems
+- 📉 Reduces manual data analysis time
+- 📊 Helps managers make faster decisions
+- 🧠 Converts raw data into actionable insight
+- 🚀 Prototype for SaaS AI dashboard systems
 👨‍💻 Author
 GitHub: https://github.com/phucthinhdoan
 Project: AI Sales Dashboard
