@@ -30,7 +30,7 @@ DATA_PATH = os.path.join(BASE_DIR, "data", "sales.csv")
 
 @st.cache_data
 def load_data():
-    return pd.read_csv(sales.csv)
+    return pd.read_csv("sales.csv")
 
 df = load_data()
 
