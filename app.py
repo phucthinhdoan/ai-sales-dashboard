@@ -14,23 +14,29 @@ st.set_page_config(
 # ---------------- HEADER ----------------
 st.markdown("""
 # 🚀 AI Sales Intelligence Platform
-### Turn raw data into business decisions using AI
+### Turn data into business decisions with AI
 """)
 
 col1, col2, col3 = st.columns(3)
 col1.metric("⚡ Status", "Live")
-col2.metric("🧠 AI Engine", "Groq")
+col2.metric("🧠 AI", "Groq Enabled")
 col3.metric("📊 Mode", "SaaS")
 
 st.divider()
 
-# ---------------- SAFE DATA LOAD ----------------
+# ---------------- SAFE LOAD DATA ----------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_PATH = os.path.join(BASE_DIR, "data", "sales.csv")
 
 @st.cache_data
 def load_data():
-    return pd.read_csv("sales.csv")
+    try:
+        return pd.read_csv(DATA_PATH)
+    except:
+        return pd.DataFrame({
+            "sales": [0],
+            "profit": [0]
+        })
 
 df = load_data()
 
@@ -98,20 +104,20 @@ if mode == "📊 Dashboard":
     st.subheader("🤖 AI Insight")
 
     if st.button("Generate Insight"):
-        with st.spinner("Analyzing..."):
+        with st.spinner("AI analyzing data..."):
             result = generate_insight(filtered_df)
             st.success("Done")
             st.write(result)
 
 # ---------------- AI ANALYST MODE ----------------
-elif mode == "🤖 AI Analyst":
+else:
 
-    st.subheader("💬 AI Business Analyst")
+    st.subheader("🤖 AI Business Analyst")
 
     if "chat" not in st.session_state:
         st.session_state.chat = []
 
-    user_input = st.text_input("Ask anything about your data...")
+    user_input = st.text_input("Ask your data anything...")
 
     if user_input:
         with st.spinner("Thinking..."):
