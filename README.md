@@ -87,18 +87,34 @@ User → Streamlit UI → Data Processing (Pandas)
 git clone https://github.com/phucthinhdoan/ai-sales-dashboard.git
 cd ai-sales-dashboard
 
-**### 2. Install dependencies**
+2. Install dependencies
 pip install -r requirements.txt
-
-### 3. Run  Locally
+3. Run locally
 streamlit run app.py
----
+🔑 Environment Variables
 
-### 💡 Business Value
+Create a .env file:
+
+OPENAI_API_KEY=your_key_here
+GROQ_API_KEY=your_key_here
+🚀 Deployment
+Deploy on Streamlit Cloud
+Push code to GitHub
+Go to https://share.streamlit.io/
+
+Select repository:
+
+phucthinhdoan/ai-sales-dashboard
+Main file: app.py
+Click Deploy
+💡 Business Value
 
 This project simulates a real-world AI analytics product:
 
-Reduces manual data analysis time
-Helps managers make faster decisions
-Converts raw data → strategic insights
-Works as a prototype for SaaS AI dashboard products
+📉 Reduces manual data analysis time
+📊 Helps managers make faster decisions
+🧠 Converts raw data into actionable insights
+🚀 Prototype for SaaS AI dashboard systems
+👨‍💻 Author
+GitHub: https://github.com/phucthinhdoan
+Project: AI Sales Dashboard
